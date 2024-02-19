@@ -35,3 +35,15 @@ class UdevRuleConfigurator(QMainWindow):
         layout.addLayout(self.parameters_layout)
         layout.addWidget(self.add_parameter_button)
         layout.addWidget(self.generate_button)
+
+    def add_parameter(self):
+        param_name_label = QLabel('Parameter Name:', self.centralWidget())
+        param_value_label = QLabel('Parameter Value:', self.centralWidget())
+
+        param_name_input = QLineEdit(self.centralWidget())
+        param_value_input = QLineEdit(self.centralWidget())
+
+        self.parameters_layout.addWidget(param_name_label)
+        self.parameters_layout.addWidget(param_name_input)
+        self.parameters_layout.addWidget(param_value_label)
+        self.parameters_layout.addWidget(param_value_input)
