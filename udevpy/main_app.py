@@ -47,7 +47,7 @@ class UdevRuleConfigurator(QMainWindow):
         self.parameters_layout.addWidget(param_name_input)
         self.parameters_layout.addWidget(param_value_label)
         self.parameters_layout.addWidget(param_value_input)
-        
+
     def generate_rule(self):
         selected_device = self.device_selector.currentText()
         selected_action = self.action_selector.currentText()
@@ -62,3 +62,9 @@ class UdevRuleConfigurator(QMainWindow):
         json_data = json.dumps({'device': selected_device, 'action': selected_action, 'parameters': parameters})
 
         process_parameters(json_data)
+
+if __name__ == '__main__':
+    app = QApplication([])
+    window = UdevRuleConfigurator()
+    window.show()
+    sys.exit(app.exec_())
