@@ -47,3 +47,18 @@ class UdevRuleConfigurator(QMainWindow):
         self.parameters_layout.addWidget(param_name_input)
         self.parameters_layout.addWidget(param_value_label)
         self.parameters_layout.addWidget(param_value_input)
+        
+    def generate_rule(self):
+        selected_device = self.device_selector.currentText()
+        selected_action = self.action_selector.currentText()
+
+        parameters = {}
+        for i in range(0, self.parameters_layout.count(), 4):
+            param_name = self.parameters_layout.itemAt(i + 1).widget().text()
+            param_value = self.parameters_layout.itemAt(i + 3).widget().text()
+            if param_name and param_value:
+                parameters[param_name] = param_value
+
+        json_data = json.dumps({'device': selected_device, 'action': selected_action, 'parameters': parameters})
+
+        process_parameters(json_data)
