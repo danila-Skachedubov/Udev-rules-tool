@@ -59,7 +59,7 @@ class UdevRuleConfigurator(QMainWindow):
             if param_name and param_value:
                 parameters[param_name] = param_value
 
-        json_data = json.dumps({'device': selected_device, 'action': selected_action, 'parameters': parameters})
+        json_data = json.dumps({'SUBSYSTEM': selected_device, 'ACTION': selected_action, 'parameters': parameters})
 
         process_parameters(json_data)
 

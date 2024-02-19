@@ -1,15 +1,13 @@
-#!/usr/bin/python3
-
-import sys
 import json
 
+def process_parameters(selected_device, selected_action, parameters):
+    data = {
+        'Selected Device': selected_device,
+        'Selected Action': selected_action,
+        'Parameters': parameters
+    }
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: <action> <key1=value1> <key2=value2> ...")
-        sys.exit(1)
-
-    subsystem = sys.argv[1]
-    authorized = sys.argv[2]
-    options = {arg.split('=')[0]: arg.split('=')[1] for arg in sys.argv[3:]}
-    print(options)
+    print(f'Processing saved parameters:')
+    print(f'Selected Device: {data["Selected Device"]}')
+    print(f'Selected Action: {data["Selected Action"]}')
+    print(f'Parameters: {json.dumps(data["Parameters"], indent=4)}')
