@@ -14,13 +14,17 @@ class UdevRuleConfigurator(QMainWindow):
         self.setWindowTitle('udev_rules')
         self.setGeometry(100, 100, 400, 300)
 
+        self.option_label = QLabel('Device option:', central_widget)
+        self.device_option = QComboBox(central_widget)
+        self.device_option.addItems(['Add', 'Remove'])
+
         self.device_label = QLabel('Select Device:', central_widget)
         self.device_selector = QComboBox(central_widget)
-        self.device_selector.addItems(['USB', 'PCI', 'Network'])
+        self.device_selector.addItems(['USB'])
 
         self.action_label = QLabel('Select Action:', central_widget)
         self.action_selector = QComboBox(central_widget)
-        self.action_selector.addItems(['add', 'remove', 'Allow Connection', 'Deny Connection', 'Rename', 'Run Script', 'Create Symlink', 'Change Permissions'])
+        self.action_selector.addItems(['Allow', 'Prohibit'])
         self.action_selector.currentIndexChanged.connect(self.show_action_input)
 
         self.action_input_label = QLabel('Action Input:', central_widget)
@@ -36,6 +40,8 @@ class UdevRuleConfigurator(QMainWindow):
         self.generate_button.clicked.connect(self.generate_rule)
 
         layout = QVBoxLayout(central_widget)
+        layout.addWidget(self.option_label)
+        layout.addWidget(self.device_option)
         layout.addWidget(self.device_label)
         layout.addWidget(self.device_selector)
         layout.addWidget(self.action_label)
@@ -59,6 +65,7 @@ class UdevRuleConfigurator(QMainWindow):
         self.parameters_layout.addWidget(param_value_input)
 
     def generate_rule(self):
+        option_device = self.device_option.currentText()
         selected_device = self.device_selector.currentText()
         selected_action = self.action_selector.currentText()
         action_input_value = self.action_input.text()
@@ -72,7 +79,7 @@ class UdevRuleConfigurator(QMainWindow):
 
         parameters[selected_action] = action_input_value
 
-        json_data = json.dumps({'SUBSYSTEM': selected_device, 'ACTION': selected_action, **parameters})
+        json_data = json.dumps({'ACTION': option_device,'SUBSYSTEM': selected_device, 'RULE': selected_action, **parameters})
 
         process_parameters(json_data)
 
