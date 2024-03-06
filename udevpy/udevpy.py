@@ -12,6 +12,14 @@ def process_parameters(json_data):
 
           create_udev_rule(action, subsystem, rule, parameters)
 
+          all_parameters = {
+            'ACTION': action,
+            'SUBSYSTEM': subsystem,
+            'RULE': rule,
+            **parameters
+        }
+          print(all_parameters)
+
      except Exception as exc:
           print(exc)
 
