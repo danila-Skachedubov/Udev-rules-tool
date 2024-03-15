@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QComboBox, QLineEdit, QPushButton, QVBoxLayout, QWidget
+from PyQt5.QtGui import QFont
 from udevpy import process_parameters
 import sys
 import json
-
 
 class UdevRuleConfigurator(QMainWindow):
     def __init__(self):
@@ -13,6 +13,11 @@ class UdevRuleConfigurator(QMainWindow):
 
         self.setWindowTitle('udev_rules')
         self.setGeometry(100, 100, 400, 300)
+
+        # Applying custom font
+        font = QFont()
+        font.setPointSize(10)
+        self.setFont(font)
 
         self.option_label = QLabel('Device option:', central_widget)
         self.device_option = QComboBox(central_widget)
@@ -52,6 +57,33 @@ class UdevRuleConfigurator(QMainWindow):
         layout.addWidget(self.add_parameter_button)
         layout.addWidget(self.generate_button)
 
+        # Apply custom style
+        self.setStyleSheet("""
+            QLabel {
+                font-size: 12px;
+            }
+            QComboBox, QLineEdit {
+                font-size: 12px;
+                padding: 5px;
+            }
+            QPushButton {
+                background-color: #ffffff;
+                border: 1px solid #cccccc;
+                color: #333333;
+                padding: 8px 16px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 12px;
+                margin: 4px 2px;
+                cursor: pointer;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #f0f0f0;
+            }
+        """)
+
     def add_parameter(self):
         param_name_label = QLabel('Parameter Name:', self.centralWidget())
         param_value_label = QLabel('Parameter Value:', self.centralWidget())
@@ -82,7 +114,6 @@ class UdevRuleConfigurator(QMainWindow):
 
         json_data = json.dumps({'ACTION': option_device,'SUBSYSTEM': selected_device, 'RULE': selected_action, **parameters})
 
-
         process_parameters(json_data)
 
     def show_action_input(self):
@@ -91,7 +122,6 @@ class UdevRuleConfigurator(QMainWindow):
             self.action_input.show()
         else:
             self.action_input.hide()
-
 
 if __name__ == '__main__':
     app = QApplication([])
