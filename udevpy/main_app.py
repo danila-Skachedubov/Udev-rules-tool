@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QComboBox, QLineEdit, QPushButton, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QComboBox, QLineEdit, QPushButton, QVBoxLayout, QWidget, QHBoxLayout
 from PyQt5.QtGui import QFont
 from udevpy import process_parameters
 import sys
@@ -14,7 +14,7 @@ class UdevRuleConfigurator(QMainWindow):
         self.setWindowTitle('udev_rules')
         self.setGeometry(100, 100, 400, 300)
 
-        # Applying custom font
+
         font = QFont()
         font.setPointSize(10)
         self.setFont(font)
@@ -22,19 +22,18 @@ class UdevRuleConfigurator(QMainWindow):
         self.option_label = QLabel('Device option:', central_widget)
         self.device_option = QComboBox(central_widget)
         self.device_option.addItems(['Add', 'Remove'])
+        self.device_option.setCurrentIndex(-1)
 
         self.device_label = QLabel('Select Device:', central_widget)
         self.device_selector = QComboBox(central_widget)
         self.device_selector.addItems(['USB'])
+        self.device_selector.setCurrentIndex(-1)
 
         self.action_label = QLabel('Select Action:', central_widget)
         self.action_selector = QComboBox(central_widget)
-        self.action_selector.addItems(['Allow', 'Prohibit'])
+        self.action_selector.addItems(['AUTHORIZATION', 'RUN SCRIPT', 'NAME', 'MODE', 'GROUP', 'SYMLINK', 'OWNER'])
+        self.action_selector.setCurrentIndex(-1)
         self.action_selector.currentIndexChanged.connect(self.show_action_input)
-
-        self.action_input_label = QLabel('Action Input:', central_widget)
-        self.action_input = QLineEdit(central_widget)
-        self.action_input.hide()
 
         self.parameters_layout = QVBoxLayout()
 
@@ -51,13 +50,10 @@ class UdevRuleConfigurator(QMainWindow):
         layout.addWidget(self.device_selector)
         layout.addWidget(self.action_label)
         layout.addWidget(self.action_selector)
-        layout.addWidget(self.action_input_label)
-        layout.addWidget(self.action_input)
         layout.addLayout(self.parameters_layout)
         layout.addWidget(self.add_parameter_button)
         layout.addWidget(self.generate_button)
 
-        # Apply custom style
         self.setStyleSheet("""
             QLabel {
                 font-size: 12px;
@@ -100,7 +96,6 @@ class UdevRuleConfigurator(QMainWindow):
         option_device = self.device_option.currentText()
         selected_device = self.device_selector.currentText()
         selected_action = self.action_selector.currentText()
-        action_input_value = self.action_input.text()
 
         parameters = {}
         for i in range(0, self.parameters_layout.count(), 4):
@@ -109,19 +104,30 @@ class UdevRuleConfigurator(QMainWindow):
             if param_name and param_value:
                 parameters[param_name] = param_value
 
-        if action_input_value:
-            parameters[selected_action] = action_input_value
-
-        json_data = json.dumps({'ACTION': option_device,'SUBSYSTEM': selected_device, 'RULE': selected_action, **parameters})
+        json_data = json.dumps({'ACTION': option_device, 'SUBSYSTEM': selected_device, 'RULE': selected_action, **parameters})
 
         process_parameters(json_data)
 
     def show_action_input(self):
         selected_action = self.action_selector.currentText()
-        if selected_action in ['Allow Connection', 'Deny Connection', 'Rename', 'Run Script', 'Create Symlink', 'Change Permissions']:
-            self.action_input.show()
+        if selected_action == 'Authorization':
+            self.add_authorization_input()
         else:
-            self.action_input.hide()
+            self.remove_authorization_input()
+
+    def add_authorization_input(self):
+        self.authorization_layout = QHBoxLayout()
+        self.authorization_label = QLabel('Authorization:', self.centralWidget())
+        self.authorization_selector = QComboBox(self.centralWidget())
+        self.authorization_selector.addItems(['Yes', 'No'])
+        self.authorization_layout.addWidget(self.authorization_label)
+        self.authorization_layout.addWidget(self.authorization_selector)
+        self.parameters_layout.addLayout(self.authorization_layout)
+
+    def remove_authorization_input(self):
+        if hasattr(self, 'authorization_layout'):
+            self.authorization_layout.deleteLater()
+            del self.authorization_layout
 
 if __name__ == '__main__':
     app = QApplication([])
