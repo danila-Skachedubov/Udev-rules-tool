@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QComboBox, QLineEdit, QPushButton, QVBoxLayout, QWidget, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QComboBox, QLineEdit, QPushButton, QVBoxLayout, QWidget, QCheckBox, QHBoxLayout
 from PyQt5.QtGui import QFont
-from udevpy import process_parameters
 import sys
 import json
+from udevpy import process_parameters
 
 class UdevRuleConfigurator(QMainWindow):
     def __init__(self):
@@ -13,7 +13,6 @@ class UdevRuleConfigurator(QMainWindow):
 
         self.setWindowTitle('udev_rules')
         self.setGeometry(100, 100, 400, 300)
-
 
         font = QFont()
         font.setPointSize(10)
@@ -31,17 +30,21 @@ class UdevRuleConfigurator(QMainWindow):
 
         self.action_label = QLabel('Select Action:', central_widget)
         self.action_selector = QComboBox(central_widget)
-        self.action_selector.addItems(['AUTHORIZATION', 'RUN SCRIPT', 'NAME', 'MODE', 'GROUP', 'SYMLINK', 'OWNER'])
+        self.action_selector.addItems(['RUN', 'SCRIPT', 'NAME', 'MODE', 'GROUP', 'SYMLINK', 'OWNER'])
         self.action_selector.setCurrentIndex(-1)
         self.action_selector.currentIndexChanged.connect(self.show_action_input)
 
-        self.parameters_layout = QVBoxLayout()
+        self.parameter_input_label = QLabel('Enter Value:', central_widget)
+        self.parameter_input = QLineEdit(central_widget)
+        self.parameter_input.hide()
 
         self.add_parameter_button = QPushButton('Add Parameter', central_widget)
         self.add_parameter_button.clicked.connect(self.add_parameter)
 
         self.generate_button = QPushButton('Generate Rule', central_widget)
         self.generate_button.clicked.connect(self.generate_rule)
+
+        self.disable_connection_checkbox = QCheckBox('Disable Connection')
 
         layout = QVBoxLayout(central_widget)
         layout.addWidget(self.option_label)
@@ -50,8 +53,15 @@ class UdevRuleConfigurator(QMainWindow):
         layout.addWidget(self.device_selector)
         layout.addWidget(self.action_label)
         layout.addWidget(self.action_selector)
-        layout.addLayout(self.parameters_layout)
+
+        # Layout for parameter input
+        param_input_layout = QHBoxLayout()
+        param_input_layout.addWidget(self.parameter_input_label)
+        param_input_layout.addWidget(self.parameter_input)
+
         layout.addWidget(self.add_parameter_button)
+        layout.addWidget(self.disable_connection_checkbox)
+        layout.addLayout(param_input_layout)
         layout.addWidget(self.generate_button)
 
         self.setStyleSheet("""
@@ -87,10 +97,11 @@ class UdevRuleConfigurator(QMainWindow):
         param_name_input = QLineEdit(self.centralWidget())
         param_value_input = QLineEdit(self.centralWidget())
 
-        self.parameters_layout.addWidget(param_name_label)
-        self.parameters_layout.addWidget(param_name_input)
-        self.parameters_layout.addWidget(param_value_label)
-        self.parameters_layout.addWidget(param_value_input)
+        layout = self.centralWidget().layout()
+        layout.insertWidget(layout.count() - 2, param_name_label)
+        layout.insertWidget(layout.count() - 2, param_name_input)
+        layout.insertWidget(layout.count() - 2, param_value_label)
+        layout.insertWidget(layout.count() - 2, param_value_input)
 
     def generate_rule(self):
         option_device = self.device_option.currentText()
@@ -98,11 +109,19 @@ class UdevRuleConfigurator(QMainWindow):
         selected_action = self.action_selector.currentText()
 
         parameters = {}
-        for i in range(0, self.parameters_layout.count(), 4):
-            param_name = self.parameters_layout.itemAt(i + 1).widget().text()
-            param_value = self.parameters_layout.itemAt(i + 3).widget().text()
-            if param_name and param_value:
-                parameters[param_name] = param_value
+        layout = self.centralWidget().layout()
+        for i in range(0, layout.count(), 4):
+            widget = layout.itemAt(i + 1).widget()
+            if isinstance(widget, QLineEdit):
+                param_name = widget.text()
+                param_value = layout.itemAt(i + 3).widget().text()
+                if param_name and param_value:
+                    parameters[param_name] = param_value
+            elif isinstance(widget, QComboBox):
+                param_name = widget.currentText()
+                param_value = layout.itemAt(i + 2).widget().text()
+                if param_name and param_value:
+                    parameters[param_name] = param_value
 
         json_data = json.dumps({'ACTION': option_device, 'SUBSYSTEM': selected_device, 'RULE': selected_action, **parameters})
 
@@ -110,24 +129,12 @@ class UdevRuleConfigurator(QMainWindow):
 
     def show_action_input(self):
         selected_action = self.action_selector.currentText()
-        if selected_action == 'Authorization':
-            self.add_authorization_input()
+        if selected_action:
+            self.parameter_input_label.show()
+            self.parameter_input.show()
         else:
-            self.remove_authorization_input()
-
-    def add_authorization_input(self):
-        self.authorization_layout = QHBoxLayout()
-        self.authorization_label = QLabel('Authorization:', self.centralWidget())
-        self.authorization_selector = QComboBox(self.centralWidget())
-        self.authorization_selector.addItems(['Yes', 'No'])
-        self.authorization_layout.addWidget(self.authorization_label)
-        self.authorization_layout.addWidget(self.authorization_selector)
-        self.parameters_layout.addLayout(self.authorization_layout)
-
-    def remove_authorization_input(self):
-        if hasattr(self, 'authorization_layout'):
-            self.authorization_layout.deleteLater()
-            del self.authorization_layout
+            self.parameter_input_label.hide()
+            self.parameter_input.hide()
 
 if __name__ == '__main__':
     app = QApplication([])
