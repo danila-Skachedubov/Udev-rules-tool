@@ -30,7 +30,7 @@ class UdevRuleConfigurator(QMainWindow):
 
         self.action_label = QLabel('Select Action:', central_widget)
         self.action_selector = QComboBox(central_widget)
-        self.action_selector.addItems(['RUN', 'SCRIPT', 'NAME', 'MODE', 'GROUP', 'SYMLINK', 'OWNER'])
+        self.action_selector.addItems(['RUN', 'NAME', 'MODE', 'GROUP', 'SYMLINK', 'OWNER'])
         self.action_selector.setCurrentIndex(-1)
         self.action_selector.currentIndexChanged.connect(self.show_action_input)
 
@@ -54,7 +54,6 @@ class UdevRuleConfigurator(QMainWindow):
         layout.addWidget(self.action_label)
         layout.addWidget(self.action_selector)
 
-        # Layout for parameter input
         param_input_layout = QHBoxLayout()
         param_input_layout.addWidget(self.parameter_input_label)
         param_input_layout.addWidget(self.parameter_input)
@@ -135,6 +134,9 @@ class UdevRuleConfigurator(QMainWindow):
         else:
             self.parameter_input_label.hide()
             self.parameter_input.hide()
+
+    def is_disable_connection_checked(self):
+        return 0 if self.disable_connection_checkbox.isChecked() else 1
 
 if __name__ == '__main__':
     app = QApplication([])
