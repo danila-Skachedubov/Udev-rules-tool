@@ -18,7 +18,7 @@ def process_parameters(json_data):
             'RULE': rule,
             **parameters
         }
-          print(all_parameters)
+          #print(all_parameters)
 
      except Exception as exc:
           print(exc)

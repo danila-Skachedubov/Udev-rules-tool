@@ -53,14 +53,10 @@ class UdevRuleConfigurator(QMainWindow):
         layout.addWidget(self.device_selector)
         layout.addWidget(self.action_label)
         layout.addWidget(self.action_selector)
-
-        param_input_layout = QHBoxLayout()
-        param_input_layout.addWidget(self.parameter_input_label)
-        param_input_layout.addWidget(self.parameter_input)
-
-        layout.addWidget(self.add_parameter_button)
+        layout.addWidget(self.parameter_input_label)
+        layout.addWidget(self.parameter_input)
         layout.addWidget(self.disable_connection_checkbox)
-        layout.addLayout(param_input_layout)
+        layout.addWidget(self.add_parameter_button)
         layout.addWidget(self.generate_button)
 
         self.setStyleSheet("""
@@ -108,23 +104,36 @@ class UdevRuleConfigurator(QMainWindow):
         selected_action = self.action_selector.currentText()
 
         parameters = {}
-        layout = self.centralWidget().layout()
-        for i in range(0, layout.count(), 4):
-            widget = layout.itemAt(i + 1).widget()
-            if isinstance(widget, QLineEdit):
-                param_name = widget.text()
-                param_value = layout.itemAt(i + 3).widget().text()
-                if param_name and param_value:
-                    parameters[param_name] = param_value
-            elif isinstance(widget, QComboBox):
-                param_name = widget.currentText()
-                param_value = layout.itemAt(i + 2).widget().text()
-                if param_name and param_value:
-                    parameters[param_name] = param_value
 
-        json_data = json.dumps({'ACTION': option_device, 'SUBSYSTEM': selected_device, 'RULE': selected_action, **parameters})
+        layout = self.centralWidget().layout()
+        for i in range(layout.count()):
+            item = layout.itemAt(i)
+            if isinstance(item, QHBoxLayout):
+                for j in range(item.count()):
+                    widget = item.itemAt(j).widget()
+                    if isinstance(widget, QLineEdit):
+                        param_name = widget.text()
+                        param_value = item.itemAt(j + 2).widget().text()
+                        if param_name and param_value:
+                            parameters[param_name] = param_value
+
+        if selected_action:
+            param_name = selected_action
+            param_value = self.parameter_input.text()
+            if param_value:
+                parameters[param_name] = param_value
+
+        json_data = {
+            'ACTION': option_device,
+            'SUBSYSTEM': selected_device,
+            'RULE': selected_action,
+            'authorized': self.is_disable_connection_checked(),
+            **parameters
+        }
 
         process_parameters(json_data)
+
+        print(json.dumps(json_data))
 
     def show_action_input(self):
         selected_action = self.action_selector.currentText()
