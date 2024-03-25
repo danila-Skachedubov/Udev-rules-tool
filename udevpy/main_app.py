@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QComboBox, QLineEdit, QPushButton, QVBoxLayout, QWidget, QCheckBox, QHBoxLayout
+from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QFont
 import sys
 import json
@@ -131,9 +132,10 @@ class UdevRuleConfigurator(QMainWindow):
             **parameters
         }
 
-        process_parameters(json_data)
+        json_string = json.dumps(json_data)
+        #process_parameters(json_string)
 
-        print(json.dumps(json_data))
+        print(json_string)
 
     def show_action_input(self):
         selected_action = self.action_selector.currentText()
@@ -147,8 +149,14 @@ class UdevRuleConfigurator(QMainWindow):
     def is_disable_connection_checked(self):
         return 0 if self.disable_connection_checkbox.isChecked() else 1
 
+    def cleanup(self):
+        pass
+
+
 if __name__ == '__main__':
     app = QApplication([])
     window = UdevRuleConfigurator()
     window.show()
+
+    app.aboutToQuit.connect(window.cleanup)
     sys.exit(app.exec_())
