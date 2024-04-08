@@ -11,6 +11,7 @@ class UdevRuleConfigurator(QMainWindow):
 
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
+        self.param_widgets = []
 
         self.setWindowTitle('udev_rules')
         self.setGeometry(100, 100, 400, 300)
@@ -46,6 +47,9 @@ class UdevRuleConfigurator(QMainWindow):
         self.generate_button.clicked.connect(self.generate_rule)
 
         self.disable_connection_checkbox = QCheckBox('Disable Connection')
+
+        self.param_name_input = None
+        self.param_value_input = None
 
         layout = QVBoxLayout(central_widget)
         layout.addWidget(self.option_label)
@@ -98,6 +102,7 @@ class UdevRuleConfigurator(QMainWindow):
         layout.insertWidget(layout.count() - 2, param_name_input)
         layout.insertWidget(layout.count() - 2, param_value_label)
         layout.insertWidget(layout.count() - 2, param_value_input)
+        self.param_widgets.append((param_name_input, param_value_input))
 
     def generate_rule(self):
         option_device = self.device_option.currentText()
@@ -110,19 +115,23 @@ class UdevRuleConfigurator(QMainWindow):
         for i in range(layout.count()):
             item = layout.itemAt(i)
             if isinstance(item, QHBoxLayout):
-                for j in range(item.count()):
-                    widget = item.itemAt(j).widget()
-                    if isinstance(widget, QLineEdit):
-                        param_name = widget.text()
-                        param_value = item.itemAt(j + 2).widget().text()
-                        if param_name and param_value:
-                            parameters[param_name] = param_value
+                param_name_widget = item.itemAt(1).widget()
+                param_value_widget = item.itemAt(3).widget()
+                if isinstance(param_name_widget, QLabel) and isinstance(param_value_widget, QLineEdit):
+                    param_name = param_name_widget.text()
+                    param_value = param_value_widget.text()
+                    if param_name and param_value:
+                        parameters[param_name] = param_value
 
-        if selected_action:
-            param_name = selected_action
-            param_value = self.parameter_input.text()
-            if param_value:
-                parameters[param_name] = param_value
+        param_value = self.parameter_input.text()
+        if selected_action and param_value:
+            parameters[selected_action] = param_value
+
+        for param_name_input, param_value_input in self.param_widgets:
+            param_name_value = param_name_input.text()
+            param_value_value = param_value_input.text()
+            if param_name_value and param_value_value:
+                parameters[param_name_value] = param_value_value
 
         json_data = {
             'ACTION': option_device,
@@ -133,9 +142,10 @@ class UdevRuleConfigurator(QMainWindow):
         }
 
         json_string = json.dumps(json_data)
-        #process_parameters(json_string)
 
         print(json_string)
+
+
 
     def show_action_input(self):
         selected_action = self.action_selector.currentText()
