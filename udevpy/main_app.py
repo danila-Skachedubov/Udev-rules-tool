@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QComboBox, QLineEdit, QPushButton, QVBoxLayout, QWidget, QCheckBox, QHBoxLayout
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QFont
+import signal
 import sys
 import json
 from udevpy import process_parameters
@@ -9,6 +10,7 @@ class UdevRuleConfigurator(QMainWindow):
     def __init__(self):
         super(UdevRuleConfigurator, self).__init__()
 
+        self.setup_signals()
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
         self.param_widgets = []
@@ -159,9 +161,11 @@ class UdevRuleConfigurator(QMainWindow):
     def is_disable_connection_checked(self):
         return 0 if self.disable_connection_checkbox.isChecked() else 1
 
+    def setup_signals(self):
+        signal.signal(signal.SIGINT, self.close)
+
     def cleanup(self):
         pass
-
 
 if __name__ == '__main__':
     app = QApplication([])
