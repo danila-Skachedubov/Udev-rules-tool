@@ -134,8 +134,8 @@ class UdevRuleConfigurator(QMainWindow):
             if param_name_value and param_value_value:
                 parameters[param_name_value] = param_value_value
 
-        json_data = {'rules': []}
 
+        rule = {}
 
         if all([option_device, selected_device]):
 
@@ -146,12 +146,12 @@ class UdevRuleConfigurator(QMainWindow):
                 selected_action : param_value,
                 "authorized" : self.is_disable_connection_checked()
             }
-            json_data['rules'].append(rule)
 
-        json_string = json.dumps(json_data, indent=2)
+
+        json_string = json.dumps(rule, indent=2)
         print(json_string)
 
-
+        self.close()
 
     def show_action_input(self):
         selected_action = self.action_selector.currentText()
