@@ -137,13 +137,14 @@ class UdevRuleConfigurator(QMainWindow):
         json_data = {'rules': []}
 
 
-        if all([option_device, selected_device, selected_action]):
+        if all([option_device, selected_device]):
 
             rule = {
+                "action": option_device.lower(),
                 "subsystem": selected_device.lower(),
-                "action": selected_action.lower(),
                 "attributes": {key: value for key, value in parameters.items()},
-                selected_action : param_value
+                selected_action : param_value,
+                "authorized" : self.is_disable_connection_checked()
             }
             json_data['rules'].append(rule)
 
