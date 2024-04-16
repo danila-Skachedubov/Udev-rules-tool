@@ -38,6 +38,11 @@ class UdevRuleConfigurator(QMainWindow):
         self.action_selector.setCurrentIndex(-1)
         self.action_selector.currentIndexChanged.connect(self.show_action_input)
 
+        self.kernel_label = QLabel('Select Kernel:', central_widget)
+        self.kernel_selector = QComboBox(central_widget)
+        self.kernel_selector.addItems(['ttyUSB*', 'console', 'lp*'])
+        self.kernel_selector.setCurrentIndex(-1)
+
         self.parameter_input_label = QLabel('Enter Value:', central_widget)
         self.parameter_input = QLineEdit(central_widget)
         self.parameter_input.hide()
@@ -56,6 +61,8 @@ class UdevRuleConfigurator(QMainWindow):
         layout = QVBoxLayout(central_widget)
         layout.addWidget(self.option_label)
         layout.addWidget(self.device_option)
+        layout.addWidget(self.kernel_label)
+        layout.addWidget(self.kernel_selector)
         layout.addWidget(self.device_label)
         layout.addWidget(self.device_selector)
         layout.addWidget(self.action_label)
@@ -65,6 +72,7 @@ class UdevRuleConfigurator(QMainWindow):
         layout.addWidget(self.disable_connection_checkbox)
         layout.addWidget(self.add_parameter_button)
         layout.addWidget(self.generate_button)
+
 
         self.setStyleSheet("""
             QLabel {
@@ -110,6 +118,7 @@ class UdevRuleConfigurator(QMainWindow):
         option_device = self.device_option.currentText()
         selected_device = self.device_selector.currentText()
         selected_action = self.action_selector.currentText()
+        selected_kernel = self.kernel_selector.currentText()
 
         parameters = {}
 
@@ -137,11 +146,12 @@ class UdevRuleConfigurator(QMainWindow):
 
         rule = {}
 
-        if all([option_device, selected_device]):
+        if option_device or selected_device or selected_kernel:
 
             rule = {
-                "action": option_device.lower(),
-                "subsystem": selected_device.lower(),
+                "ACTION": option_device.lower(),
+                "KERNEL": selected_kernel.lower(),
+                "SUBSYSTEM": selected_device.lower(),
                 "attributes": {key: value for key, value in parameters.items()},
                 selected_action : param_value,
                 "authorized" : self.is_disable_connection_checked()
