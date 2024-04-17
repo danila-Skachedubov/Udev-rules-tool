@@ -152,7 +152,7 @@ class UdevRuleConfigurator(QMainWindow):
                 "ACTION": option_device.lower(),
                 "KERNEL": selected_kernel.lower(),
                 "SUBSYSTEM": selected_device.lower(),
-                "attributes": {key: value for key, value in parameters.items()},
+                "ATTRS": {key: value for key, value in parameters.items()},
                 selected_action : param_value,
                 "authorized" : self.is_disable_connection_checked()
             }
