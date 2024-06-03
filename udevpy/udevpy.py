@@ -20,7 +20,10 @@ import json
 import os
 
 class UdevApplier:
-    __module_name = 'UdevApplier'
-    __module_experimental = True
-    __module_enabled = False
-    __hklm_branch = 'Software\\BaseALT\\Policies\\KDE\\'
+    json_dir = "/etc/udev/json"
+
+    def __init__(self) -> None:
+        self.rules = {}
+
+    def load_json_files(self):
+        pass

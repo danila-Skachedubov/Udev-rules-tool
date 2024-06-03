@@ -4,7 +4,6 @@ from PyQt5.QtGui import QFont
 import signal
 import sys
 import json
-from udevpy import process_parameters
 
 class UdevRuleConfigurator(QMainWindow):
     def __init__(self):
