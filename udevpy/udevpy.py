@@ -3,6 +3,7 @@ import os
 
 class UdevApplier:
     json_dir = "/etc/udev/json"
+    rules_dir = "/etc/udev/rules.d"
 
     def __init__(self):
         self.rules = {}
@@ -18,8 +19,10 @@ class UdevApplier:
                     except json.JSONDecodeError as e:
                         print(f"Error decoding JSON from file {file_path}: {e}")
 
-
-
+    def save_udev_rules(self):
+        for rule_name, rule_data in self.rules.items():
+            rule_filename = f'10-policy-{rule_name}.rules'
+            rule_filepath = os.path.join(self.rules_dir, rule_filename)
 
 if __name__ == '__main__':
     applier = UdevApplier()
