@@ -23,7 +23,11 @@ class UdevApplier:
         for rule_name, rule_data in self.rules.items():
             rule_filename = f'10-policy-{rule_name}.rules'
             rule_filepath = os.path.join(self.rules_dir, rule_filename)
+            if os.path.exists(rule_filepath):
+                os.remove(rule_filepath)
+                print(f"Удален старый файл : {rule_filepath}")
 
 if __name__ == '__main__':
     applier = UdevApplier()
     applier.load_json_files()
+    applier.save_udev_rules()
