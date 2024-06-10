@@ -15,13 +15,16 @@ class UdevApplier:
                 with open(file_path, 'r') as file:
                     try:
                         data = json.load(file)
-                        self.rules.update(data)
+                        for rule_name, rule_data in data.items():
+                            self.rules[rule_name] = rule_data
                     except json.JSONDecodeError as e:
                         print(f"Error decoding JSON from file {file_path}: {e}")
+            else:
+                print(f"No json files were found in the {self.json_dir} directory ")
 
     def save_udev_rules(self):
         for rule_name, rule_data in self.rules.items():
-            rule_filename = f'10-policy-{rule_name}.rules'
+            rule_filename = f'10-alt-policy-{rule_name}.rules'
             rule_filepath = os.path.join(self.rules_dir, rule_filename)
             if os.path.exists(rule_filepath):
                 os.remove(rule_filepath)
