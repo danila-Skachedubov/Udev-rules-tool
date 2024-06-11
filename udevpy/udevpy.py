@@ -28,7 +28,24 @@ class UdevApplier:
             rule_filepath = os.path.join(self.rules_dir, rule_filename)
             if os.path.exists(rule_filepath):
                 os.remove(rule_filepath)
-                print(f"Удален старый файл : {rule_filepath}")
+                #print(f"Remove old file : {rule_filepath}")
+            with open(rule_filepath, 'w') as rule_file:
+                rule_lines = self.generate_udev_rule_lines(rule_data)
+                #rule_file.writelines(rule_lines)
+                #print(f"Create new file : {rule_filepath}")
+
+    def generate_udev_rule_lines(self, rule_data):
+        rule_line = ""
+        print('rule_data----', rule_data)
+        if isinstance(rule_data, list):
+            for dict in rule_data:
+                for key, value in dict.items():
+                    rule_line += f"{key}\"{value}\", "
+                rule_line += '\n'
+        else:
+            for key, value in rule_data.items():
+                rule_line += f"{key}{value}, "
+            print(rule_line)
 
 if __name__ == '__main__':
     applier = UdevApplier()
