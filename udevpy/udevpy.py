@@ -31,21 +31,21 @@ class UdevApplier:
                 #print(f"Remove old file : {rule_filepath}")
             with open(rule_filepath, 'w') as rule_file:
                 rule_lines = self.generate_udev_rule_lines(rule_data)
-                #rule_file.writelines(rule_lines)
+                rule_file.writelines(rule_lines)
                 #print(f"Create new file : {rule_filepath}")
 
     def generate_udev_rule_lines(self, rule_data):
         rule_line = ""
-        print('rule_data----', rule_data)
         if isinstance(rule_data, list):
             for dict in rule_data:
                 for key, value in dict.items():
                     rule_line += f"{key}\"{value}\", "
+                rule_line = rule_line.strip(", ")
                 rule_line += '\n'
         else:
             for key, value in rule_data.items():
                 rule_line += f"{key}{value}, "
-            print(rule_line)
+        return rule_line
 
 if __name__ == '__main__':
     applier = UdevApplier()
