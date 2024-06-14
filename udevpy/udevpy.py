@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 
 class UdevApplier:
     json_dir = "/etc/udev/json"
@@ -46,6 +47,25 @@ class UdevApplier:
             for key, value in rule_data.items():
                 rule_line += f"{key}{value}, "
         return rule_line
+
+    def verify_udev_rules(self):
+        wrong_files = []
+        try:
+            result = subprocess.run(
+                ["/sbin/udevadm", "verify", f"{self.rules_dir}",],
+                check=True,
+                text=True,
+                capture_output=True,
+            )
+        except subprocess.CalledProcessError as e:
+            if e.stderr:
+                lines = e.stderr.splitlines()
+                for i, line in enumerate(lines):
+                    if line.startswith(self.rules_dir) and "udev rules check failed" in lines[i]:
+                        error_report = line.split(":")[0]
+                        wrong_files.append(error_report)
+        print(wrong_files)
+        return wrong_files
 
 if __name__ == '__main__':
     applier = UdevApplier()
