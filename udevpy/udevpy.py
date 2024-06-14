@@ -45,7 +45,8 @@ class UdevApplier:
                 rule_line += '\n'
         else:
             for key, value in rule_data.items():
-                rule_line += f"{key}{value}, "
+                rule_line += f"{key}\"{value}\", "
+            rule_line = rule_line.strip(", ")
         return rule_line
 
     def verify_udev_rules(self):
@@ -71,3 +72,4 @@ if __name__ == '__main__':
     applier = UdevApplier()
     applier.load_json_files()
     applier.save_udev_rules()
+    applier.verify_udev_rules()
