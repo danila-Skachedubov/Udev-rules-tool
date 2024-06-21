@@ -84,4 +84,17 @@ if __name__ == '__main__':
     applier = UdevApplier()
     applier.load_json_files()
     applier.save_udev_rules()
-    applier.verify_udev_rules()
+    try:
+        result = subprocess.run(['rpm', '-q', 'systemd'], capture_output=True, text=True, check=True)
+        output = result.stdout.strip()
+        if 'systemd-' in output:
+            version_str = output.split('-')[1].split('.')[0]
+            version = int(version_str)
+            print(version)
+        else:
+            raise ValueError("Не удалось извлечь версию systemd")
+    except subprocess.CalledProcessError as e:
+        print(f"Ошибка при выполнении команды: {e}")
+    
+    if version is not None and version < 254:
+        applier.verify_udev_rules()
