@@ -52,7 +52,7 @@ class UdevApplier:
     def verify_udev_rules(self):
         wrong_files = []
         try:
-            result = subprocess.run(
+            subprocess.run(
                 ["/sbin/udevadm", "verify", f"{self.rules_dir}",],
                 check=True,
                 text=True,
@@ -67,6 +67,17 @@ class UdevApplier:
                         wrong_files.append(error_report)
         print(wrong_files)
         return wrong_files
+
+    def remove_wrong_file(self, remove_list):
+        for file_path in remove_list:
+            try:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    print(f"Удален файл: {file_path}")
+                else:
+                    print(f"Файл не найден: {file_path}")
+            except Exception as e:
+                print(f"Ошибка при удалении файла {file_path}: {e}")
 
 if __name__ == '__main__':
     applier = UdevApplier()
