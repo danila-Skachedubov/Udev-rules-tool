@@ -53,7 +53,7 @@ class UdevApplier:
         wrong_files = []
         try:
             subprocess.run(
-                ["/sbin/udevadm", "verify", f"{self.rules_dir}",],
+                ["/sbin/udevadm", "verify", f"{self.rules_dir}/",],
                 check=True,
                 text=True,
                 capture_output=True,
@@ -66,6 +66,7 @@ class UdevApplier:
                         error_report = line.split(":")[0]
                         wrong_files.append(error_report)
         print(wrong_files)
+        self.remove_wrong_file(wrong_files)
         return wrong_files
 
     def remove_wrong_file(self, remove_list):
