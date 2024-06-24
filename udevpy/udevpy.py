@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+from pydbus import SystemBus
 
 class UdevApplier:
     json_dir = "/etc/udev/json"
@@ -79,6 +80,16 @@ class UdevApplier:
                     print(f"Файл не найден: {file_path}")
             except Exception as e:
                 print(f"Ошибка при удалении файла {file_path}: {e}")
+
+    def get_systemd_version(self):
+        try:
+            bus = SystemBus()
+            systemd = bus.get("org.freedesktop.systemd1")
+            version = systemd.Version
+            parts = version.split('.')
+            return int(parts[0])
+        except Exception as exc:
+            print(exc)
 
 if __name__ == '__main__':
     applier = UdevApplier()
