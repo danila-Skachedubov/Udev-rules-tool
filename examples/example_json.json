@@ -1,0 +1,52 @@
+ {"rule1": [
+    {
+      "SUBSYSTEM==": "usb",
+      "ATTRS{serial}==": "L72010011070626380",
+      "SYMLINK+=": "epson_680"
+    },
+    {
+      "KERNEL==": "sd?1",
+      "SUBSYSTEMS==": "scsi",
+      "ATTRS{model}==": "X250,D560Z,C350Z",
+      "SYMLINK+=": "camera"
+    },
+    {
+      "KERNEL==": "sd*",
+      "SUBSYSTEMS==": "scsi",
+      "ATTRS{model}==": "USB 2.0 Storage Device",
+      "SYMLINK+=": "usbhd%n"
+    }
+  ],
+  "rule4": {
+    "KERNEL==": "sd*",
+    "SUBSYSTEMS==": "scsi",
+    "ATTRS{model}==": "USB 2.0 CompactFlash Reader",
+    "SYMLINK+=": "cfrdr%n",
+    "OPTIONS+=": "all_partitions"
+  },
+  "rule5": {
+    "SUBSYSTEMS==": "usb",
+    "ATTRS{product}==": "Palm Handheld",
+    "KERNEL==": "ttyUSB*",
+    "SYMLINK+=": "pilot"
+  },
+  "rule6": {
+    "SUBSYSTEM==": "block",
+    "KERNEL==": "hdd",
+    "SYMLINK+=": "dvdrw",
+    "GROUP=": "cdrom"
+  },
+  "rule7": {
+    "KERNEL==": "eth*",
+    "ATTR{address}==": "00:52:8b:d5:04:48",
+    "NAME=": "lan"
+  },
+  "rule8": {
+    "SUBSYSTEMS==": "usb",
+    "ACTION==": "add",
+    "ATTRS{idVendor}==": "0781",
+    "ATTRS{idProduct}==": "5567",
+    "ENV{UDISKS_IGNORE}=": "1",
+    "RUN+=": "/usr/local/bin/usb_notify.sh"
+  }
+}
