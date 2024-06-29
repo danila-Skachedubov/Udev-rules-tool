@@ -1,7 +1,26 @@
+#!/usr/bin/env python3
 import json
 import os
 import subprocess
 from pydbus import SystemBus
+import signal
+import sys
+
+class DconfWatcherDaemon:
+    def __init__(self, path):
+        self.dconf_path = path
+        self.process = None
+
+    def handle_change(self, change):
+        print(f"Change detected: {change}")
+
+    def start_watching(self):
+        self.process = subprocess.Popen(
+            ['dconf', 'watch', self.dconf_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
 
 class UdevApplier:
     json_dir = "/etc/udev/json"
