@@ -35,6 +35,18 @@ class DconfWatcherDaemon:
             print(f"Error: {e}")
         finally:
             self.cleanup()
+
+    def stop_watching(self, signum, frame):
+        print("Stopping the watcher...")
+        self.cleanup()
+        sys.exit(0)
+
+    def cleanup(self):
+        if self.process:
+            self.process.terminate()
+            self.process.wait()
+
+
 class UdevApplier:
     json_dir = "/etc/udev/json"
     rules_dir = "/etc/udev/rules.d"
@@ -124,6 +136,9 @@ class UdevApplier:
             print(exc)
 
 if __name__ == '__main__':
+    dconf_path = ""
+    daemon = DconfWatcherDaemon(dconf_path)
+    daemon.start_watching()
     applier = UdevApplier()
     applier.load_json_files()
     applier.save_udev_rules()
