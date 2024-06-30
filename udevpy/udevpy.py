@@ -21,7 +21,20 @@ class DconfWatcherDaemon:
             stderr=subprocess.PIPE,
             text=True
         )
+        signal.signal(signal.SIGINT, self.stop_watching)
+        signal.signal(signal.SIGTERM, self.stop_watching)
 
+        try:
+            while True:
+                output = self.process.stdout.readline()
+                if output:
+                    self.handle_change(output.strip())
+                elif self.process.poll() is not None:
+                    break
+        except Exception as e:
+            print(f"Error: {e}")
+        finally:
+            self.cleanup()
 class UdevApplier:
     json_dir = "/etc/udev/json"
     rules_dir = "/etc/udev/rules.d"
