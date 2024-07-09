@@ -48,25 +48,30 @@ class DconfWatcherDaemon:
 
 
 class UdevApplier:
-    json_dir = "/etc/udev/json"
+    json_dir = "/Software/BaseALT/Policies/Udev/"
     rules_dir = "/etc/udev/rules.d"
 
     def __init__(self):
         self.rules = {}
 
-    def load_json_files(self):
-        for filename in os.listdir(self.json_dir):
-            if filename.endswith(".json"):
-                file_path = os.path.join(self.json_dir, filename)
-                with open(file_path, 'r') as file:
-                    try:
-                        data = json.load(file)
-                        for rule_name, rule_data in data.items():
-                            self.rules[rule_name] = rule_data
-                    except json.JSONDecodeError as e:
-                        print(f"Error decoding JSON from file {file_path}: {e}")
-            else:
-                print(f"No json files were found in the {self.json_dir} directory ")
+    def load_dict_from_dconf(self):
+        try:
+            result = subprocess.run(['dconf', 'dump', dconf_path], stdout=subprocess.PIPE)
+            data = result.stdout.decode('utf-8')
+            lines = data.strip().split('\n')
+            current_key = None
+            for line in lines:
+                if line.startswith('['):
+                    current_key = line.strip('[]')
+                    self.rules [current_key] = {}
+                elif line.startswith('rule='):
+                    rule_str = line[len('rule='):]
+                    rule_dict = eval(rule_str)
+                    self.rules [current_key] = rule_dict
+        except subprocess.CalledProcessError as e:
+            print(f"Error reading from dconf: {e}")
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON from dconf data: {e}")
 
     def save_udev_rules(self):
         for rule_name, rule_data in self.rules.items():
