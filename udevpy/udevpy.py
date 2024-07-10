@@ -141,12 +141,6 @@ class UdevApplier:
             print(exc)
 
 if __name__ == '__main__':
-    dconf_path = ""
+    dconf_path = "/Software/BaseALT/Policies/Udev/"
     daemon = DconfWatcherDaemon(dconf_path)
     daemon.start_watching()
-    applier = UdevApplier()
-    applier.load_json_files()
-    applier.save_udev_rules()
-    if applier.get_systemd_version() > 254:
-        applier.verify_udev_rules()
-    pass
